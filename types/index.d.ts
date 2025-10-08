@@ -11,6 +11,9 @@ export type Surat = {
   updated_at: string;
 };
 
+export type UUID =
+  `${string}-${string}-${string}-${string}-${string}`;
+
 export type SuratListItem = Pick<
   Surat,
   "id" | "no_urutan" | "no_surat" | "perihal" | "tujuan" | "tanggal_dibuat" | "file_url"
