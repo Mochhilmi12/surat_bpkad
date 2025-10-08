@@ -4,8 +4,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { UploadButton } from "@uploadthing/react";
 import type { SuratListItem } from "@/types";
+import { UploadButton } from "@/lib/uploadthing";
 
 type Props = {
   mode: "create" | "edit";
@@ -63,8 +63,8 @@ export default function SuratFormDialog({ mode, initial, onSaved, trigger }: Pro
             <div className="text-sm">File (opsional): {fileUrl ? <a className="underline" href={fileUrl} target="_blank">Lihat</a> : "-"}</div>
             <UploadButton
               endpoint="suratFile"
-              onClientUploadComplete={(res) => { setFileUrl(res?.[0]?.url ?? null); }}
-              onUploadError={(e) => alert(e.message)}
+              onClientUploadComplete={(res: any) => { setFileUrl(res?.[0]?.url ?? null); }}
+              onUploadError={(e: any) => alert(e.message)}
             />
           </div>
 
