@@ -1,23 +1,44 @@
-import { NextResponse } from "next/server";
-import { requireUser } from "@/lib/auth";
-import { updateSurat, deleteSurat } from "@/lib/db-queries";
+export const runtime = "nodejs";
+
+import { NextRequest, NextResponse } from "next/server";
+import { supabaseAdmin } from "@/lib/supabase-route";
 import { suratUpdateSchema } from "@/schemas/surat.schema";
 
-type Params = { params: { id: string } };
-
-export async function PATCH(req: Request, { params }: Params) {
-  await requireUser();
+// PATCH /api/surat/:id
+export async function PATCH(
+  req: NextRequest,
+  ctx: { params: Promise<{ id: string }> }   // ⬅️ perhatikan: params adalah Promise
+) {
+  const { id } = await ctx.params;            // ⬅️ harus di-await
   const body = await req.json();
+
   const parsed = suratUpdateSchema.safeParse(body);
   if (!parsed.success) {
     return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 });
   }
-  const updated = await updateSurat(params.id, parsed.data);
-  return NextResponse.json(updated);
+
+  const supabase = supabaseAdmin();
+  const { data, error } = await supabase
+    .from("surat")
+    .update(parsed.data)
+    .eq("id", id)
+    .select("*")
+    .single();
+
+  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  return NextResponse.json(data);
 }
 
-export async function DELETE(_req: Request, { params }: Params) {
-  await requireUser();
-  await deleteSurat(params.id);
+// DELETE /api/surat/:id
+export async function DELETE(
+  _req: NextRequest,
+  ctx: { params: Promise<{ id: string }> }    // ⬅️ sama: Promise
+) {
+  const { id } = await ctx.params;
+
+  const supabase = supabaseAdmin();
+  const { error } = await supabase.from("surat").delete().eq("id", id);
+  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+
   return NextResponse.json({ success: true });
 }
