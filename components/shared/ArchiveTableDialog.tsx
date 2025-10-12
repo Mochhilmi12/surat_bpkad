@@ -21,8 +21,8 @@ export default function ArchiveTableDialog({
   const rows = data?.rows ?? [];
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-5xl">
+    <Dialog  open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="">
         <DialogHeader>
           <DialogTitle>Arsip: {String(month).padStart(2,"0")}/{year}</DialogTitle>
           <DialogDescription>Daftar surat yang termasuk dalam arsip bulan ini.</DialogDescription>

@@ -3,6 +3,7 @@ import * as React from "react";
 import useSWR from "swr";
 import { FileText, CalendarDays, Calendar, Clock } from "lucide-react";
 import { MetricsGrid } from "@/components/shared/MetricsGrid";
+import ArchivePickerDialog from "@/components/shared/ArchivePickerDialog";
 import ArchiveTableDialog from "@/components/shared/ArchiveTableDialog";
 
 type Stats = {
@@ -12,16 +13,17 @@ type Stats = {
   last: { no_surat: string; perihal: string; tanggal_dibuat: string } | null;
 };
 
-const fetcher = (u: string) => fetch(u).then(r => r.json());
+const fetcher = (u: string) => fetch(u).then((r) => r.json());
 
 export default function SuratStatsMetrics() {
   const { data, isLoading } = useSWR<Stats>("/api/surat/stats", fetcher);
 
-  // === state modal arsip bulan ini
+  // state untuk flow pilih bulan -> tampil tabel
+  const [openPick, setOpenPick] = React.useState(false);
+  const [openTable, setOpenTable] = React.useState(false);
   const now = new Date();
-  const [openArchive, setOpenArchive] = React.useState(false);
-  const archiveYear = now.getFullYear();
-  const archiveMonth = now.getMonth() + 1;
+  const [year, setYear] = React.useState(now.getFullYear());
+  const [month, setMonth] = React.useState(now.getMonth() + 1);
 
   const cards = [
     {
@@ -55,7 +57,7 @@ export default function SuratStatsMetrics() {
       deltaLabel: "+1",
       highlight: "Periode berjalan",
       caption: "Total surat pada bulan berjalan",
-      filterValue: "thisMonth", // <- penting: penanda kartu bulan ini
+      filterValue: "thisMonth", // akan memicu picker
     },
     {
       title: "SURAT TERAKHIR",
@@ -63,40 +65,49 @@ export default function SuratStatsMetrics() {
       icon: Clock,
       color: "text-rose-600",
       trend: "flat" as const,
-      deltaLabel: "—",
-      highlight: data?.last?.perihal ?? "—",
+      deltaLabel: "-",
+      highlight: data?.last?.perihal ?? "-",
       caption: "Perihal & tanggal surat terakhir",
       filterValue: "last",
     },
   ];
 
-  // klik kartu
   function handleCardClick(key: string) {
     if (key === "thisMonth") {
-      // buka modal arsip bulan berjalan
-      setOpenArchive(true);
-      return;
+      setOpenPick(true); // buka pilih bulan dulu
     }
-    // kartu lain bisa dipakai buat filter/aksi lain kalau perlu
   }
 
   return (
-    <>
+    <section className="w-full ">
       <MetricsGrid
         cards={cards}
-        statusFilter=""           // tidak dipakai? boleh kosong
+        statusFilter=""
         onClickCard={handleCardClick}
         isLoading={isLoading}
         skeletonCount={4}
       />
 
-      {/* Modal tabel arsip bulan berjalan */}
-      <ArchiveTableDialog
-        open={openArchive}
-        onOpenChange={setOpenArchive}
-        year={archiveYear}
-        month={archiveMonth}
+      {/* Modal 1: pilih bulan/tahun */}
+      <ArchivePickerDialog
+        open={openPick}
+        onOpenChange={setOpenPick}
+        onConfirm={(y, m) => {
+          setYear(y);
+          setMonth(m);
+          setOpenPick(false);
+          setOpenTable(true);
+        }}
       />
-    </>
+
+      {/* Modal 2: tabel arsip untuk bulan & tahun terpilih */}
+      <ArchiveTableDialog
+        open={openTable}
+        onOpenChange={setOpenTable}
+        year={year}
+        month={month}
+      />
+    </section>
   );
 }
+

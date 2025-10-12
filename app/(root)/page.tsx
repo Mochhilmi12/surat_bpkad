@@ -3,7 +3,7 @@ import SuratTableInline from "@/components/surat/SuratTableInline";
 
 export default async function HomePage() {
   return (
-    <div className="wrapper space-y-6">
+    <div className="wrapper flex flex-col gap-6 py-6 sm:py-8">
 
       <SuratStatsMetrics />
 

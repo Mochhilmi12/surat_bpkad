@@ -17,7 +17,6 @@ import SuratFormPanel from "./SuratFormPanel";
 import SuratFileSheet from "./SuratFormSheet"; 
 import type { SuratListItem } from "@/types";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "../ui/dialog";
-import ArchiveLauncher from "../shared/ArchiveLauncher";
 
 const fetcher = (url: string) => fetch(url).then((r) => r.json());
 
@@ -95,7 +94,7 @@ export default function SuratTableInline() {
 
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <div className="grid grid-cols-1 gap-6 lg:grid-cols-3 lg:items-start">
       {/* KIRI: panel form */}
       <div className="lg:col-span-1">
         <SuratFormPanel
@@ -108,23 +107,22 @@ export default function SuratTableInline() {
       </div>
 
       {/* KANAN: tabel */}
-      <div className="lg:col-span-2 overflow-hidden bg-white rounded-2xl border border-slate-200/70 shadow-sm">
+      <div className="lg:col-span-2 flex flex-col overflow-hidden rounded-2xl border border-slate-200/70 bg-white shadow-sm">
         {/* toolbar pencarian */}
-        <div className="flex items-center justify-between p-4 gap-3">
-          <h3 className="font-semibold text-slate-800">Daftar Surat</h3>
-          <div className="flex flex-row gap-3 items-center">
+        <div className="flex flex-col gap-3 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+          <h3 className="text-base font-semibold text-slate-800">Daftar Surat</h3>
+          <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:items-center sm:justify-end">
             <Input
-            placeholder="Cari no surat/perihal/tujuan…"
+            placeholder="Cari no surat/perihal/tujuan..."
             value={q}
             onChange={(e) => setQ(e.target.value)}
-            className="w-72"
+            className="w-full sm:w-72"
           />
-          <ArchiveLauncher />
           </div>
         </div>
 
         <div className="overflow-x-auto">
-          <Table>
+          <Table className="min-w-[720px]">
             <TableHeader className="bg-[#F8F8FF]">
               <TableRow className="border-slate-200">
                 <TableHead className="text-slate-700 font-semibold p-4 w-16">#</TableHead>
@@ -269,9 +267,10 @@ export default function SuratTableInline() {
       </div>
         </div>
       </div>
-      {/* Modal konfirmasi delete */}
+      <div className="w-full">
+        {/* Modal konfirmasi delete */}
       <Dialog open={openDelete} onOpenChange={setOpenDelete}>
-        <DialogContent>
+        <DialogContent className="">
           <DialogHeader>
             <DialogTitle>Hapus surat?</DialogTitle>
           </DialogHeader>
@@ -299,6 +298,10 @@ export default function SuratTableInline() {
     </DialogFooter>
   </DialogContent>
 </Dialog>
+      </div>
     </div>
   );
 }
+
+
+

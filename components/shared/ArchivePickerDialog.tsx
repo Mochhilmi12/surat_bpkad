@@ -1,8 +1,14 @@
 "use client";
+
 import * as React from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose } from "@/components/ui/dialog";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Dialog, DialogContent, DialogHeader, DialogTitle,
+  DialogDescription, DialogFooter, DialogClose,
+} from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import {
+  Select, SelectTrigger, SelectValue, SelectContent, SelectItem,
+} from "@/components/ui/select";
 
 export default function ArchivePickerDialog({
   open, onOpenChange, onConfirm,
@@ -17,7 +23,7 @@ export default function ArchivePickerDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent>
+      <DialogContent className="w-full flex flex-col">
         <DialogHeader>
           <DialogTitle>Pilih Arsip Bulanan</DialogTitle>
           <DialogDescription>Pilih bulan & tahun arsip yang ingin dilihat.</DialogDescription>
@@ -25,20 +31,30 @@ export default function ArchivePickerDialog({
 
         <div className="flex flex-wrap gap-3">
           <Select value={String(month)} onValueChange={(v) => setMonth(Number(v))}>
-            <SelectTrigger className="w-28"><SelectValue placeholder="Bulan" /></SelectTrigger>
+            <SelectTrigger className="w-28">
+              <SelectValue placeholder="Bulan" />
+            </SelectTrigger>
             <SelectContent>
               {Array.from({ length: 12 }).map((_, i) => (
-                <SelectItem key={i+1} value={String(i+1)}>{i+1}</SelectItem>
+                <SelectItem key={i + 1} value={String(i + 1)}>
+                  {new Date(2000, i, 1).toLocaleString("id-ID", { month: "long" })}
+                </SelectItem>
               ))}
             </SelectContent>
           </Select>
 
           <Select value={String(year)} onValueChange={(v) => setYear(Number(v))}>
-            <SelectTrigger className="w-36"><SelectValue placeholder="Tahun" /></SelectTrigger>
+            <SelectTrigger className="w-36">
+              <SelectValue placeholder="Tahun" />
+            </SelectTrigger>
             <SelectContent>
               {Array.from({ length: 7 }).map((_, i) => {
                 const y = now.getFullYear() - i;
-                return <SelectItem key={y} value={String(y)}>{y}</SelectItem>;
+                return (
+                  <SelectItem key={y} value={String(y)}>
+                    {y}
+                  </SelectItem>
+                );
               })}
             </SelectContent>
           </Select>
@@ -48,7 +64,7 @@ export default function ArchivePickerDialog({
           <DialogClose asChild>
             <Button variant="outline">Batal</Button>
           </DialogClose>
-          <Button className="bg-slate-600 text-white hover:bg-slate-700" onClick={() => onConfirm(year, month)}>Lihat Arsip</Button>
+          <Button onClick={() => onConfirm(year, month)}>Lihat Arsip</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
