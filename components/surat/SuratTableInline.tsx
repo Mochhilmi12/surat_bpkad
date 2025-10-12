@@ -147,10 +147,10 @@ export default function SuratTableInline() {
               </TableBody>
             ) : (
               <TableBody>
-                {rows.map((r) => (
+                {rows.map((r, i) => (
                   <TableRow key={r.id} className="hover:bg-slate-50 transition-colors">
                     <TableCell className="p-4">
-                      <span className="text-slate-700">{r.no_urutan}</span>
+                      <span className="text-slate-700">{startIndex + i + 1}</span>
                     </TableCell>
                     <TableCell className="p-4">
                       <div className="font-medium text-slate-900">{r.no_surat}</div>
