@@ -9,13 +9,15 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
-import { MoreHorizontal, Pencil, Trash2 } from "lucide-react";
+import { ArchiveIcon, MoreHorizontal, Pencil, Trash2 } from "lucide-react";
 import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import SuratFormPanel from "./SuratFormPanel";
 import SuratFileSheet from "./SuratFormSheet"; 
 import type { SuratListItem } from "@/types";
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "../ui/dialog";
+import ArchiveLauncher from "../shared/ArchiveLauncher";
 
 const fetcher = (url: string) => fetch(url).then((r) => r.json());
 
@@ -53,7 +55,10 @@ export default function SuratTableInline() {
   // --- Pagination state
   const [rowsPerPage, setRowsPerPage] = React.useState(10);
   const [page, setPage] = React.useState(1);
-
+  const [openDelete, setOpenDelete] = React.useState(false);
+  const [deletingId, setDeletingId] = React.useState<string | null>(null);
+  const [openArchive, setOpenArchive] = React.useState(false);
+  const [archivingId, setArchivingId] = React.useState<string | null>(null);
   const totalPages = Math.max(1, Math.ceil(rows.length / rowsPerPage));
   const startIndex = (page - 1) * rowsPerPage;
   const endIndex   = Math.min(startIndex + rowsPerPage, rows.length);
@@ -68,13 +73,25 @@ export default function SuratTableInline() {
   const [selected, setSelected] = React.useState<SuratListItem | null>(null);
   
 
-  async function handleDelete(id: string) {
-    if (!confirm("Hapus surat ini?")) return;
-    const res = await fetch(`/api/surat/${id}`, { method: "DELETE" });
-    if (!res.ok) return alert("Gagal menghapus");
-    if (selected?.id === id) setSelected(null);
-    mutate();
+   async function confirmDelete() {
+    if (!deletingId) return;
+    const res = await fetch(`/api/surat/${deletingId}`, { method: "DELETE" });
+    if (!res.ok) {
+      alert("Gagal menghapus");
+    } else {
+      if (selected?.id === deletingId) setSelected(null);
+      mutate();
+    }
+    setOpenDelete(false);
+    setDeletingId(null);
   }
+
+  async function confirmArchive() {
+  if (!archivingId) return;
+  await fetch(`/api/surat/${archivingId}/archive`, { method: "PATCH" });
+  mutate();
+  setOpenArchive(false);
+}
 
 
   return (
@@ -95,12 +112,15 @@ export default function SuratTableInline() {
         {/* toolbar pencarian */}
         <div className="flex items-center justify-between p-4 gap-3">
           <h3 className="font-semibold text-slate-800">Daftar Surat</h3>
-          <Input
+          <div className="flex flex-row gap-3 items-center">
+            <Input
             placeholder="Cari no surat/perihal/tujuan…"
             value={q}
             onChange={(e) => setQ(e.target.value)}
             className="w-72"
           />
+          <ArchiveLauncher />
+          </div>
         </div>
 
         <div className="overflow-x-auto">
@@ -184,12 +204,25 @@ export default function SuratTableInline() {
                             className="text-rose-600 focus:text-rose-700"
                             onSelect={(e) => {
                               e.preventDefault();
-                              handleDelete(r.id);
+                              setDeletingId(r.id);
+                              setOpenDelete(true);
                             }}
                           >
                             <Trash2 className="h-4 w-4 mr-2" />
                             Hapus
                           </DropdownMenuItem>
+                          <DropdownMenuItem
+                            className="text-amber-600"
+                            onSelect={(e) => {
+                              e.preventDefault();
+                              setArchivingId(r.id);
+                              setOpenArchive(true);
+                            }}
+                          >
+                            <ArchiveIcon />
+                            Arsipkan
+                          </DropdownMenuItem>
+
                         </DropdownMenuContent>
                       </DropdownMenu>
                     </TableCell>
@@ -236,6 +269,36 @@ export default function SuratTableInline() {
       </div>
         </div>
       </div>
+      {/* Modal konfirmasi delete */}
+      <Dialog open={openDelete} onOpenChange={setOpenDelete}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Hapus surat?</DialogTitle>
+          </DialogHeader>
+          <p className="text-sm text-slate-600">
+            Apakah Anda yakin ingin menghapus surat ini? Tindakan ini tidak dapat dibatalkan.
+          </p>
+          <DialogFooter className="gap-2">
+            <Button variant="outline" onClick={() => setOpenDelete(false)}>Batal</Button>
+            <Button variant="destructive" onClick={confirmDelete}>Ya, hapus</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={openArchive} onOpenChange={setOpenArchive}>
+  <DialogContent>
+    <DialogHeader>
+      <DialogTitle>Arsipkan surat?</DialogTitle>
+    </DialogHeader>
+    <p className="text-sm text-slate-600">
+      Surat ini akan dipindahkan ke arsip bulanan. Anda tetap bisa melihatnya nanti.
+    </p>
+    <DialogFooter>
+      <Button variant="outline" onClick={() => setOpenArchive(false)}>Batal</Button>
+      <Button variant="secondary" onClick={confirmArchive}>Ya, arsipkan</Button>
+    </DialogFooter>
+  </DialogContent>
+</Dialog>
     </div>
   );
 }

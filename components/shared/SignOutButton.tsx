@@ -23,7 +23,7 @@ export default function SignOutButton() {
   };
 
   return (
-    <Button variant="outline" onClick={handleSignOut}>
+    <Button variant="outline" className="bg-red-500 text-white hover:bg-red-600" onClick={handleSignOut}>
       Keluar
     </Button>
   );
