@@ -5,6 +5,7 @@ import { FileText, CalendarDays, Calendar, Clock } from "lucide-react";
 import { MetricsGrid } from "@/components/shared/MetricsGrid";
 import ArchivePickerDialog from "@/components/shared/ArchivePickerDialog";
 import ArchiveTableDialog from "@/components/shared/ArchiveTableDialog";
+import TotalSuratChartDialog from "@/components/shared/TotalSuratChartDialog";
 
 type Stats = {
   total: number;
@@ -12,18 +13,21 @@ type Stats = {
   thisMonth: number;
   last: { no_surat: string; perihal: string; tanggal_dibuat: string } | null;
 };
-
-const fetcher = (u: string) => fetch(u).then((r) => r.json());
+const fetcher = (u: string) => fetch(u).then(r => r.json());
 
 export default function SuratStatsMetrics() {
   const { data, isLoading } = useSWR<Stats>("/api/surat/stats", fetcher);
 
-  // state untuk flow pilih bulan -> tampil tabel
+  // flow arsip bulan
   const [openPick, setOpenPick] = React.useState(false);
   const [openTable, setOpenTable] = React.useState(false);
   const now = new Date();
   const [year, setYear] = React.useState(now.getFullYear());
   const [month, setMonth] = React.useState(now.getMonth() + 1);
+
+  // modal chart total surat
+  const [openTotalChart, setOpenTotalChart] = React.useState(false);
+  const chartYear = now.getFullYear();
 
   const cards = [
     {
@@ -35,7 +39,7 @@ export default function SuratStatsMetrics() {
       deltaLabel: "+1 hari ini",
       highlight: "Keseluruhan arsip",
       caption: "Jumlah seluruh surat yang tersimpan",
-      filterValue: "total",
+      filterValue: "total", // klik ini -> buka chart
     },
     {
       title: "SURAT HARI INI",
@@ -57,7 +61,7 @@ export default function SuratStatsMetrics() {
       deltaLabel: "+1",
       highlight: "Periode berjalan",
       caption: "Total surat pada bulan berjalan",
-      filterValue: "thisMonth", // akan memicu picker
+      filterValue: "thisMonth",
     },
     {
       title: "SURAT TERAKHIR",
@@ -65,8 +69,8 @@ export default function SuratStatsMetrics() {
       icon: Clock,
       color: "text-rose-600",
       trend: "flat" as const,
-      deltaLabel: "-",
-      highlight: data?.last?.perihal ?? "-",
+      deltaLabel: "—",
+      highlight: data?.last?.perihal ?? "—",
       caption: "Perihal & tanggal surat terakhir",
       filterValue: "last",
     },
@@ -74,12 +78,14 @@ export default function SuratStatsMetrics() {
 
   function handleCardClick(key: string) {
     if (key === "thisMonth") {
-      setOpenPick(true); // buka pilih bulan dulu
+      setOpenPick(true); // pilih bulan → tabel arsip
+    } else if (key === "total") {
+      setOpenTotalChart(true); // buka chart total
     }
   }
 
   return (
-    <section className="w-full ">
+    <>
       <MetricsGrid
         cards={cards}
         statusFilter=""
@@ -88,7 +94,7 @@ export default function SuratStatsMetrics() {
         skeletonCount={4}
       />
 
-      {/* Modal 1: pilih bulan/tahun */}
+      {/* pilih bulan → lihat arsip */}
       <ArchivePickerDialog
         open={openPick}
         onOpenChange={setOpenPick}
@@ -99,15 +105,19 @@ export default function SuratStatsMetrics() {
           setOpenTable(true);
         }}
       />
-
-      {/* Modal 2: tabel arsip untuk bulan & tahun terpilih */}
       <ArchiveTableDialog
         open={openTable}
         onOpenChange={setOpenTable}
         year={year}
         month={month}
       />
-    </section>
+
+      {/* chart total surat per bulan (tahun berjalan) */}
+      <TotalSuratChartDialog
+        open={openTotalChart}
+        onOpenChange={setOpenTotalChart}
+        year={chartYear}
+      />
+    </>
   );
 }
-

@@ -109,7 +109,7 @@ export default function SuratTableInline() {
       {/* KANAN: tabel */}
       <div className="lg:col-span-2 flex flex-col overflow-hidden rounded-2xl border border-slate-200/70 bg-white shadow-sm">
         {/* toolbar pencarian */}
-        <div className="flex flex-col gap-3 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex flex-rpw md:flex-row lg:items-center justify-between gap-3 px-4 py-3 ">
           <h3 className="text-base font-semibold text-slate-800">Daftar Surat</h3>
           <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:items-center sm:justify-end">
             <Input
