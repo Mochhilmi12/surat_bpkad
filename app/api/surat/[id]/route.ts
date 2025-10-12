@@ -6,11 +6,11 @@ import { suratUpdateSchema } from "@/schemas/surat.schema";
 
 // PATCH /api/surat/:id
 export async function PATCH(
-  req: NextRequest,
-  ctx: { params: Promise<{ id: string }> }   // ⬅️ perhatikan: params adalah Promise
+  _req: NextRequest,
+  ctx: { params: Promise<{ id: string }> }
 ) {
-  const { id } = await ctx.params;            // ⬅️ harus di-await
-  const body = await req.json();
+  const { id } = await ctx.params; 
+  const body = await _req.json();
 
   const parsed = suratUpdateSchema.safeParse(body);
   if (!parsed.success) {
@@ -32,9 +32,9 @@ export async function PATCH(
 // DELETE /api/surat/:id
 export async function DELETE(
   _req: NextRequest,
-  ctx: { params: Promise<{ id: string }> }    // ⬅️ sama: Promise
+  ctx: { params: Promise<{ id: string }> }
 ) {
-  const { id } = await ctx.params;
+  const { id } = await ctx.params; 
 
   const supabase = supabaseAdmin();
   const { error } = await supabase.from("surat").delete().eq("id", id);

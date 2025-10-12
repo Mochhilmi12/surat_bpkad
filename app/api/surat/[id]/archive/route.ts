@@ -1,8 +1,11 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase-route";
 
-export async function PATCH(req: Request, { params }: { params: { id: string } }) {
-  const { id } = params;
+export async function PATCH(
+  _req: NextRequest,
+  ctx: { params: Promise<{ id: string }> }
+) {
+  const { id } = await ctx.params; 
   const { error } = await supabaseAdmin()
     .from("surat")
     .update({ is_archived: true })
