@@ -52,7 +52,7 @@ export default function SuratTableInline() {
   const rows = data?.rows ?? [];
 
   // --- Pagination state
-  const [rowsPerPage, setRowsPerPage] = React.useState(10);
+  const [rowsPerPage, setRowsPerPage] = React.useState(20);
   const [page, setPage] = React.useState(1);
   const [openDelete, setOpenDelete] = React.useState(false);
   const [deletingId, setDeletingId] = React.useState<string | null>(null);
@@ -248,7 +248,6 @@ export default function SuratTableInline() {
               onChange={(e) => setRowsPerPage(Number(e.target.value))}
               className="h-8 rounded-md border border-slate-300 bg-white px-2 text-sm disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-[#27aae1]/40"
             >
-              <option value={10}>10</option>
               <option value={20}>20</option>
               <option value={50}>50</option>
             </select>
