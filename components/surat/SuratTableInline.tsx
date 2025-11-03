@@ -20,6 +20,7 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuLabel,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import SuratFormPanel from "./SuratFormPanel";
@@ -32,6 +33,17 @@ import {
   DialogHeader,
   DialogTitle,
 } from "../ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { cn } from "@/lib/utils";
 
 const fetcher = (url: string) => fetch(url).then((r) => r.json());
 
@@ -200,7 +212,10 @@ export default function SuratTableInline() {
                 {pageData.map((r, i) => (
                   <TableRow
                     key={r.id}
-                    className="hover:bg-slate-50 transition-colors"
+                    className={cn(
+                      "hover:bg-slate-50 transition-colors",
+                      selected?.id === r.id && "bg-slate-50"
+                    )}
                   >
                     <TableCell className="p-4">
                       <span className="text-slate-700">
@@ -241,7 +256,51 @@ export default function SuratTableInline() {
                       )}
                     </TableCell>
                     <TableCell className="p-4 text-right">
-                      {/* ...DropdownMenu tetap... */}
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8"
+                          >
+                            <MoreHorizontal className="h-4 w-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end" className="w-44">
+                          <DropdownMenuLabel>Aksi</DropdownMenuLabel>
+                          <DropdownMenuItem
+                            onSelect={(event) => {
+                              event.preventDefault();
+                              setSelected(r);
+                            }}
+                          >
+                            <Pencil className="mr-2 h-4 w-4 text-slate-500" />
+                            Edit
+                          </DropdownMenuItem>
+                          <DropdownMenuItem
+                            onSelect={(event) => {
+                              event.preventDefault();
+                              setArchivingId(r.id);
+                              setOpenArchive(true);
+                            }}
+                          >
+                            <ArchiveIcon className="mr-2 h-4 w-4 text-slate-500" />
+                            Arsipkan
+                          </DropdownMenuItem>
+                          <DropdownMenuSeparator />
+                          <DropdownMenuItem
+                            className="text-destructive focus:text-destructive"
+                            onSelect={(event) => {
+                              event.preventDefault();
+                              setDeletingId(r.id);
+                              setOpenDelete(true);
+                            }}
+                          >
+                            <Trash2 className="mr-2 h-4 w-4" />
+                            Hapus
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
                     </TableCell>
                   </TableRow>
                 ))}
@@ -317,25 +376,32 @@ export default function SuratTableInline() {
       </div>
       <div className="w-full">
         {/* Modal konfirmasi delete */}
-        <Dialog open={openDelete} onOpenChange={setOpenDelete}>
-          <DialogContent className="">
-            <DialogHeader>
-              <DialogTitle>Hapus surat?</DialogTitle>
-            </DialogHeader>
-            <p className="text-sm text-slate-600">
-              Apakah Anda yakin ingin menghapus surat ini? Tindakan ini tidak
-              dapat dibatalkan.
-            </p>
-            <DialogFooter className="gap-2">
-              <Button variant="outline" onClick={() => setOpenDelete(false)}>
-                Batal
-              </Button>
-              <Button variant="destructive" onClick={confirmDelete}>
+        <AlertDialog
+          open={openDelete}
+          onOpenChange={(next) => {
+            setOpenDelete(next);
+            if (!next) setDeletingId(null);
+          }}
+        >
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Hapus surat?</AlertDialogTitle>
+              <AlertDialogDescription>
+                Apakah Anda yakin ingin menghapus surat ini? Tindakan ini tidak
+                dapat dibatalkan.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter className="gap-2">
+              <AlertDialogCancel>Batal</AlertDialogCancel>
+              <AlertDialogAction
+                className="bg-destructive text-white hover:bg-destructive/90"
+                onClick={confirmDelete}
+              >
                 Ya, hapus
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
 
         <Dialog open={openArchive} onOpenChange={setOpenArchive}>
           <DialogContent>
