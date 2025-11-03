@@ -4,11 +4,11 @@ import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase-route";
 import { suratUpdateSchema } from "@/schemas/surat.schema";
 
-type RouteContext = { params: { id: string } };
+type RouteContext = { params: Promise<{ id: string }> };
 
 // PATCH /api/surat/:id
-export async function PATCH(req: NextRequest, { params }: RouteContext) {
-  const { id } = params;
+export async function PATCH(req: NextRequest, ctx: RouteContext) {
+  const { id } = await ctx.params;
   if (!id) {
     return NextResponse.json({ error: "ID surat tidak ditemukan" }, { status: 400 });
   }
@@ -35,8 +35,8 @@ export async function PATCH(req: NextRequest, { params }: RouteContext) {
 }
 
 // DELETE /api/surat/:id
-export async function DELETE(_req: NextRequest, { params }: RouteContext) {
-  const { id } = params;
+export async function DELETE(_req: NextRequest, ctx: RouteContext) {
+  const { id } = await ctx.params;
   if (!id) {
     return NextResponse.json({ error: "ID surat tidak ditemukan" }, { status: 400 });
   }
